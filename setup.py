@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Django-Pushy',
-    version='0.1.0',
+    version='0.1.1',
     author='Rakan Alhneiti',
     author_email='rakan.alhneiti@gmail.com',
 
@@ -20,7 +20,7 @@ setup(
     # Dependent packages (distributions)
     install_requires=[
         'python-gcm',
-        'django',
+        'django<1.7',
         'django-celery'
     ],
 )
