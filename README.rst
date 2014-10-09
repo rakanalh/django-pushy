@@ -70,3 +70,4 @@ TODO
 1. APNS (Apple) dispatcher is still not implemented
 2. Allow Device queryset to be filtered in case not all devices were targeted
 3. Additional push notification data to be included with payload
+4. Django 1.7 support
