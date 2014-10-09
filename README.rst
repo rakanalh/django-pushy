@@ -63,3 +63,10 @@ then run the following from the project's root::
 
     python tests/run_tests.py
 
+
+
+TODO
+----
+# APNS (Apple) dispatcher is still not implemented
+# Allow Device queryset to be filtered in case not all devices were targeted
+# Additional push notification data to be included with payload
