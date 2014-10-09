@@ -67,6 +67,6 @@ then run the following from the project's root::
 
 TODO
 ----
-# APNS (Apple) dispatcher is still not implemented
-# Allow Device queryset to be filtered in case not all devices were targeted
-# Additional push notification data to be included with payload
+    1. APNS (Apple) dispatcher is still not implemented
+    1. Allow Device queryset to be filtered in case not all devices were targeted
+    1. Additional push notification data to be included with payload
