@@ -53,8 +53,10 @@ And don't forget to run celerybeat.
 Running the tests
 -----------------
 Install mock::
+
     pip install mock
 
 then run the following from the project's root::
+
     python tests/run_tests.py
 
