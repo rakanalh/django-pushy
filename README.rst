@@ -2,6 +2,9 @@ django-pushy
 ============
 Your push notifications handled at scale.
 
+.. image:: https://travis-ci.org/rakanalh/django-pushy.svg?branch=master
+    :target: https://travis-ci.org/rakanalh/django-pushy
+
 What does it do?
 ----------------
 Python / Django app that provides push notifications functionality with celery. The main purpose of this app is to help you send push notifications to your users at scale. If you have lots of registered device keys, django-pushy will split your keys into smaller groups which run in parallel making the process of sending notifications faster.
