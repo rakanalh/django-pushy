@@ -13,7 +13,7 @@ Setup
 -----
 You can install the library directly from pypi using pip::
 
-	$ pip install django-push-notifications
+	$ pip install django-pushy
 
 
 Add django-pushy to your INSTALLED_APPS::
@@ -21,7 +21,7 @@ Add django-pushy to your INSTALLED_APPS::
 	INSTALLED_APPS = (
 		...
 		"djcelery",
-		"push_notifications"
+		"pushy"
 	)
 
 Configurations::
