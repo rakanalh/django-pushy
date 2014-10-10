@@ -7,7 +7,11 @@ setup(
     author_email='rakan.alhneiti@gmail.com',
 
     # Packages
-    packages=['pushy'],
+    packages=[
+        'pushy',
+        'pushy/migrations',
+        'pushy/south_migrations'
+    ],
     include_package_data=True,
 
     # Details
