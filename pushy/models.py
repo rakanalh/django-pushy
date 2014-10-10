@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -42,7 +42,7 @@ class Device(models.Model):
 
     key = models.TextField()
     type = models.SmallIntegerField(choices=DEVICE_TYPE_CHOICES)
-    user = models.ForeignKey(get_user_model(), blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
     class Meta:
         unique_together = ('key', 'type')

@@ -32,14 +32,23 @@ Configurations::
 	PUSHY_QUEUE_DEFAULT_NAME = 'default'
 	PUSHY_DEVICE_KEY_LIMIT = 1000
 
-Then perform "python manage.py syncdb" to install the app's DB tables.
+
+If you're using Django < 1.7 and using south, make sure you do the following::
+
+    pip install South==1.0
+    python manage.py syncdb
+    python manage.py migrate
+
+If you're using Django 1.7, you only have to perform::
+
+    python manage.py migrate
 
 How do i use it?
 ----------------
 
 Whenever you need to push a notification, use the following code::
 
-    from pushy import send_push_notification
+    from pushy.utils import send_push_notification
     send_push_notification('YOUR TITLE', 'YOUR BODY')
 
 and pushy will handle the rest.
@@ -73,4 +82,3 @@ TODO
 1. APNS (Apple) dispatcher is still not implemented
 2. Allow Device queryset to be filtered in case not all devices were targeted
 3. Additional push notification data to be included with payload
-4. Django 1.7 support
