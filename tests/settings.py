@@ -18,6 +18,8 @@ INSTALLED_APPS = [
     'pushy',
 ]
 
+MIDDLEWARE_CLASSES = []
+
 SECRET_KEY = 'django-pushy-key'
 SITE_ID = 1
 ROOT_URLCONF = 'core.urls'

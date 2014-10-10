@@ -1,6 +1,6 @@
 import mock
 from django.test import TestCase
-from pushy import send_push_notification
+from pushy.utils import send_push_notification
 from pushy.models import PushNotification
 
 
