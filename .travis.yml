@@ -1,13 +1,33 @@
 language: python
+
 python:
-  - "2.6"
-  - "2.7"
+  - 2.6
+  - 2.7
+  - 3.2
+  - 3.3
+
 env:
   - DJANGO=1.5
   - DJANGO=1.6
+  - DJANGO=1.7
+
+matrix:
+    exclude:
+        - python: 2.6
+          env: DJANGO=1.7
+
 install:
   - pip install -q Django==$DJANGO --use-mirrors
   - pip install -r requirements.txt --use-mirrors
+  - pip install -q coveralls --use-mirrors
+  - pip install flake8
   - python setup.py -q install
+
+before_script:
+    - flake8 pushy
+
 script:
-  - python tests/run_tests.py
+    - coverage run test_suite.py
+
+after_success:
+    - coveralls

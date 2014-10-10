@@ -1,0 +1,19 @@
+[run]
+branch = True
+source = pushy
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    def __unicode__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplemented(Error)?
+    if 0:
+    if __name__ == .__main__.:
+
+[html]
+directory = coverage
