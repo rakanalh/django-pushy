@@ -4,6 +4,9 @@ Your push notifications handled at scale.
 
 .. image:: https://travis-ci.org/rakanalh/django-pushy.svg?branch=master
     :target: https://travis-ci.org/rakanalh/django-pushy
+.. image:: https://pypip.in/d/django-pushy/badge.png
+    :target: https://crate.io/packages/django-pushy/
+    :alt: Number of PyPI downloads
 
 What does it do?
 ----------------
