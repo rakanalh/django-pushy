@@ -3,7 +3,8 @@ from pushy.tasks import send_single_push_notification
 from tasks import create_push_notification_groups
 
 
-def send_push_notification(title, body, device=None, filter_user=None, filter_type=None):
+def send_push_notification(title, body, device=None,
+                           filter_user=None, filter_type=None):
     notification = PushNotification.objects.create(
         title=title,
         body=body,
