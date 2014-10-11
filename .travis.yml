@@ -24,7 +24,7 @@ install:
   - python setup.py -q install
 
 before_script:
-    - flake8 pushy
+    - flake8 --exclude=migrations,south_migrations pushy
 
 script:
     - coverage run test_suite.py

@@ -7,10 +7,12 @@ from ..dispatchers import get_dispatcher, Dispatcher
 
 @task(queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default'))
 def check_pending_push_notifications():
-    pending_notifications = PushNotification.objects.filter(sent=PushNotification.PUSH_NOT_SENT)
+    pending_notifications = PushNotification.objects.filter(
+        sent=PushNotification.PUSH_NOT_SENT)
 
     for pending_notification in pending_notifications:
-        create_push_notification_groups.apply_async(kwargs={'notification_id': pending_notification.id})
+        create_push_notification_groups.apply_async(
+            kwargs={'notification_id': pending_notification.id})
 
         pending_notification.sent = PushNotification.PUSH_SENT
         pending_notification.save()
@@ -23,7 +25,9 @@ def create_push_notification_groups(notification_id):
     if devices.count() > 0:
         count = devices.count()
         limit = getattr(settings, 'PUSHY_DEVICE_KEY_LIMIT', 1000)
-        group(send_push_notification_group.s(notification_id, offset, limit) for offset in range(0, count, limit)).delay()
+        group(send_push_notification_group.s(
+            notification_id, offset, limit)
+            for offset in range(0, count, limit)).delay()
 
 
 @task(queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default'))

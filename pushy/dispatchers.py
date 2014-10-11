@@ -33,7 +33,8 @@ class GCMDispatcher(Dispatcher):
 
         # Plaintext request
         try:
-            canonical_id = gcm.plaintext_request(registration_id=device_key, data=data)
+            canonical_id = gcm.plaintext_request(registration_id=device_key,
+                                                 data=data)
             if canonical_id:
                 return self.PUSH_RESULT_SENT, canonical_id
             else:
@@ -56,4 +57,3 @@ def get_dispatcher(device_type):
         dispatchers_cache[device_type] = APNSDispatcher()
 
     return dispatchers_cache[device_type]
-

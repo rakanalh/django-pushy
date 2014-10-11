@@ -23,8 +23,10 @@ class PushNotification(models.Model):
     title = models.CharField(max_length=50)
     body = models.TextField()
 
-    active = models.SmallIntegerField(choices=PUSH_CHOICES, default=PUSH_ACTIVE)
-    sent = models.SmallIntegerField(choices=PUSH_SENT_CHOICES, default=PUSH_NOT_SENT)
+    active = models.SmallIntegerField(choices=PUSH_CHOICES,
+                                      default=PUSH_ACTIVE)
+    sent = models.SmallIntegerField(choices=PUSH_SENT_CHOICES,
+                                    default=PUSH_NOT_SENT)
 
     date_created = models.DateTimeField(auto_now_add=True)
 
