@@ -77,7 +77,7 @@ Install mock::
 
 then run the following from the project's root::
 
-    python test_suite.py
+    python tests/run_tests.py
 
 
 

@@ -16,7 +16,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'pushy',
-    'tests'
 ]
 
 MIDDLEWARE_CLASSES = []
