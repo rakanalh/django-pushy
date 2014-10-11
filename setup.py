@@ -2,13 +2,14 @@ from setuptools import setup
 
 setup(
     name='Django-Pushy',
-    version='0.1.2',
+    version='0.1.3',
     author='Rakan Alhneiti',
     author_email='rakan.alhneiti@gmail.com',
 
     # Packages
     packages=[
         'pushy',
+        'pushy/tasks',
         'pushy/migrations',
         'pushy/south_migrations'
     ],

@@ -30,6 +30,15 @@ class PushNotification(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
+    filter_type = models.SmallIntegerField(blank=True, default=0)
+    filter_user = models.IntegerField(blank=True, default=0)
+
+    def get_payload(self):
+        return {
+            'title': self.title,
+            'body': self.body
+        }
+
     def __unicode__(self):
         return self.title
 
@@ -46,5 +55,13 @@ class Device(models.Model):
     type = models.SmallIntegerField(choices=DEVICE_TYPE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
-    class Meta:
-        unique_together = ('key', 'type')
+
+def get_filtered_devices_queryset(notification):
+    devices = Device.objects.all()
+
+    if notification.filter_type:
+        devices = devices.filter(type=notification.filter_type)
+    if notification.filter_user:
+        devices = devices.filter(user_id=notification.filter_user)
+
+    return devices

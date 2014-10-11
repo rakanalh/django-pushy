@@ -8,33 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'PushNotification'
-        db.create_table(u'pushy_pushnotification', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('body', self.gf('django.db.models.fields.TextField')()),
-            ('active', self.gf('django.db.models.fields.SmallIntegerField')(default=1)),
-            ('sent', self.gf('django.db.models.fields.SmallIntegerField')(default=0)),
-            ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal(u'pushy', ['PushNotification'])
+        # Adding field 'PushNotification.filter_type'
+        db.add_column(u'pushy_pushnotification', 'filter_type',
+                      self.gf('django.db.models.fields.SmallIntegerField')(default=0, blank=True),
+                      keep_default=False)
 
-        # Adding model 'Device'
-        db.create_table(u'pushy_device', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('key', self.gf('django.db.models.fields.TextField')()),
-            ('type', self.gf('django.db.models.fields.SmallIntegerField')()),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
-        ))
-        db.send_create_signal(u'pushy', ['Device'])
+        # Adding field 'PushNotification.filter_user'
+        db.add_column(u'pushy_pushnotification', 'filter_user',
+                      self.gf('django.db.models.fields.IntegerField')(default=0, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'PushNotification'
-        db.delete_table(u'pushy_pushnotification')
+        # Deleting field 'PushNotification.filter_type'
+        db.delete_column(u'pushy_pushnotification', 'filter_type')
 
-        # Deleting model 'Device'
-        db.delete_table(u'pushy_device')
+        # Deleting field 'PushNotification.filter_user'
+        db.delete_column(u'pushy_pushnotification', 'filter_user')
 
 
     models = {
@@ -75,7 +65,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         u'pushy.device': {
-            'Meta': {'unique_together': "(('key', 'type'),)", 'object_name': 'Device'},
+            'Meta': {'object_name': 'Device'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.TextField', [], {}),
             'type': ('django.db.models.fields.SmallIntegerField', [], {}),
@@ -86,6 +76,8 @@ class Migration(SchemaMigration):
             'active': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
             'body': ('django.db.models.fields.TextField', [], {}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'filter_type': ('django.db.models.fields.SmallIntegerField', [], {'default': '0', 'blank': 'True'}),
+            'filter_user': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'sent': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '50'})

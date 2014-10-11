@@ -38,8 +38,4 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-        migrations.AlterUniqueTogether(
-            name='device',
-            unique_together=set([('key', 'type')]),
-        ),
     ]
