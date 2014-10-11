@@ -7,8 +7,10 @@ Your push notifications handled at scale.
 .. image:: https://pypip.in/d/django-pushy/badge.png
     :target: https://crate.io/packages/django-pushy/
     :alt: Number of PyPI downloads
-.. image:: https://coveralls.io/repos/rakanalh/django-pushy/badge.png
-  :target: https://coveralls.io/r/rakanalh/django-pushy
+.. image:: https://coveralls.io/repos/rakanalh/django-pushy/badge.png?branch=master
+  :target: https://coveralls.io/r/rakanalh/django-pushy?branch=master
+
+
 
 
 
