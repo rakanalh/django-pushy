@@ -11,9 +11,6 @@ Your push notifications handled at scale.
   :target: https://coveralls.io/r/rakanalh/django-pushy?branch=master
 
 
-
-
-
 What does it do?
 ----------------
 Python / Django app that provides push notifications functionality with celery. The main purpose of this app is to help you send push notifications to your users at scale. If you have lots of registered device keys, django-pushy will split your keys into smaller groups which run in parallel making the process of sending notifications faster.
@@ -35,6 +32,7 @@ Add django-pushy to your INSTALLED_APPS::
 
 Configurations::
 
+    PUSHY_GCM_API_KEY = 'YOUR_API_KEY_HERE'
 	PUSHY_QUEUE_DEFAULT_NAME = 'default'
 	PUSHY_DEVICE_KEY_LIMIT = 1000
 
@@ -52,12 +50,33 @@ If you're using Django 1.7, you only have to perform::
 How do i use it?
 ----------------
 
+There are 2 models provided by Pushy:
+1) PushNotification
+2) Device
+
+You have to implement your own code to use the Device model to register keys into the database::
+
+    from pushy.models import Device
+    Device.objects.create(key='123', type=Device.DEVICE_TYPE_ANDROID, user=current_user)
+    Device.objects.create(key='123', type=Device.DEVICE_TYPE_IOS, user=None)
+
+
 Whenever you need to push a notification, use the following code::
 
     from pushy.utils import send_push_notification
     send_push_notification('YOUR TITLE', 'YOUR BODY')
 
-and pushy will handle the rest.
+This will send a push notification to all registered devices.
+You can also send a single notification to a single device::
+
+    device = Device.objects.get(pk=1)
+    send_push_notification('YOUR TITLE', 'YOUR BODY', device=device)
+
+
+Or you can use the filter_user or filter_type to make pushy send to a specified queryset of devices::
+
+    send_push_notification('YOUR TITLE', 'YOUR BODY', filter_user=user)
+    send_push_notification('YOUR TITLE', 'YOUR BODY', filter_type=Device.DEVICE_TYPE_IOS)
 
 Admin
 -----
@@ -86,5 +105,4 @@ then run the following from the project's root::
 TODO
 ----
 1. APNS (Apple) dispatcher is still not implemented
-2. Allow Device queryset to be filtered in case not all devices were targeted
-3. Additional push notification data to be included with payload
+2. Additional push notification data to be included with payload
