@@ -62,7 +62,7 @@ def send_single_push_notification(device, payload):
         try:
             device = Device.objects.get(pk=device)
         except Device.DoesNotExist:
-            return
+            return False
 
     dispatcher = get_dispatcher(device.type)
 
@@ -74,3 +74,5 @@ def send_single_push_notification(device, payload):
             device.save()
     elif result == Dispatcher.PUSH_RESULT_NOT_REGISTERED:
         device.delete()
+
+    return True

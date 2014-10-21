@@ -1,7 +1,7 @@
 [run]
 branch = True
 source = pushy
-omit = *migrations*,apps.py,admin.py
+omit = *migrations*,*apps*,*admin.py*
 
 [report]
 exclude_lines =

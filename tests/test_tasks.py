@@ -1,10 +1,10 @@
-import json
 from django.contrib.auth import get_user_model
 from gcm.gcm import GCMNotRegisteredException
 import mock
 from django.test import TestCase
 from pushy.models import PushNotification, Device, get_filtered_devices_queryset
-from pushy.tasks import check_pending_push_notifications, send_push_notification_group
+from pushy.tasks import check_pending_push_notifications, send_push_notification_group, send_single_push_notification, \
+    create_push_notification_groups
 
 
 class TasksTestCase(TestCase):
@@ -129,3 +129,22 @@ class TasksTestCase(TestCase):
 
             self.assertRaises(Device.DoesNotExist, Device.objects.get, pk=device.id)
 
+        # Create an another test device key
+        device = Device.objects.create(key='TEST_DEVICE_KEY', type=Device.DEVICE_TYPE_ANDROID)
+
+        # No canonical ID wasn't returned
+        gcm = mock.Mock()
+        gcm.return_value = False
+        with mock.patch('gcm.GCM.plaintext_request', new=gcm):
+            send_push_notification_group(notification.id, 0, 1)
+
+            device = Device.objects.get(pk=device.id)
+            self.assertEqual(device.key, 'TEST_DEVICE_KEY')
+
+    def test_create_push_notification_groups_non_existent_notification(self):
+        result = create_push_notification_groups(1000)
+        self.assertFalse(result)
+
+    def test_non_existent_device(self):
+        result = send_single_push_notification(1000, {'payload': 'test'})
+        self.assertFalse(result)
