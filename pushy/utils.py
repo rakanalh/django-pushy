@@ -3,19 +3,21 @@ from pushy.tasks import send_single_push_notification
 from tasks import create_push_notification_groups
 
 
-def send_push_notification(title, body, device=None,
+def send_push_notification(title, payload, device=None,
                            filter_user=None, filter_type=None):
+
     notification = PushNotification.objects.create(
         title=title,
-        body=body,
+        payload=payload,
         active=PushNotification.PUSH_ACTIVE,
-        sent=PushNotification.PUSH_NOT_SENT)
+        sent=PushNotification.PUSH_NOT_SENT
+    )
 
     if device:
         # Send a single push notification immediately
         send_single_push_notification.apply_async(kwargs={
-            'device': device,
-            'payload': notification.get_payload()
+            'device': device.id,
+            'payload': notification.payload
         })
         return
 

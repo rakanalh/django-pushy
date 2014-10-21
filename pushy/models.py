@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -33,11 +34,15 @@ class PushNotification(models.Model):
     filter_type = models.SmallIntegerField(blank=True, default=0)
     filter_user = models.IntegerField(blank=True, default=0)
 
-    def get_payload(self):
-        return {
-            'title': self.title,
-            'body': self.body
-        }
+    @property
+    def payload(self):
+        if self.body:
+            return json.loads(self.body)
+        return None
+
+    @payload.setter
+    def payload(self, value):
+        self.body = json.dumps(value)
 
     def __unicode__(self):
         return self.title

@@ -1,0 +1,6 @@
+Django
+django-celery
+python-gcm
+mock
+south==1.0
+flake8

@@ -1,6 +1,7 @@
 [run]
 branch = True
 source = pushy
+omit = *migrations*
 
 [report]
 exclude_lines =

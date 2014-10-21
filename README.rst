@@ -19,22 +19,22 @@ Setup
 -----
 You can install the library directly from pypi using pip::
 
-	$ pip install django-pushy
+    $ pip install django-pushy
 
 
 Add django-pushy to your INSTALLED_APPS::
 
-	INSTALLED_APPS = (
-		...
-		"djcelery",
-		"pushy"
-	)
+    INSTALLED_APPS = (
+        ...
+        "djcelery",
+        "pushy"
+    )
 
 Configurations::
 
     PUSHY_GCM_API_KEY = 'YOUR_API_KEY_HERE'
-	PUSHY_QUEUE_DEFAULT_NAME = 'default'
-	PUSHY_DEVICE_KEY_LIMIT = 1000
+    PUSHY_QUEUE_DEFAULT_NAME = 'default'
+    PUSHY_DEVICE_KEY_LIMIT = 1000
 
 
 If you're using Django < 1.7 and using south, make sure you do the following::
@@ -64,19 +64,31 @@ You have to implement your own code to use the Device model to register keys int
 Whenever you need to push a notification, use the following code::
 
     from pushy.utils import send_push_notification
-    send_push_notification('YOUR TITLE', 'YOUR BODY')
+    send_push_notification('Push_Notification_Title', {'key': 'value' ...})
 
 This will send a push notification to all registered devices.
 You can also send a single notification to a single device::
 
     device = Device.objects.get(pk=1)
-    send_push_notification('YOUR TITLE', 'YOUR BODY', device=device)
+    send_push_notification('YOUR TITLE', {YOUR_PAYLOAD}, device=device)
 
 
 Or you can use the filter_user or filter_type to make pushy send to a specified queryset of devices::
 
-    send_push_notification('YOUR TITLE', 'YOUR BODY', filter_user=user)
-    send_push_notification('YOUR TITLE', 'YOUR BODY', filter_type=Device.DEVICE_TYPE_IOS)
+    send_push_notification('YOUR TITLE', {YOUR_PAYLOAD}, filter_user=user)
+    send_push_notification('YOUR TITLE', {YOUR_PAYLOAD}, filter_type=Device.DEVICE_TYPE_IOS)
+
+If you would like to add a push notification without triggering any action right away, you should be setting the property "payload
+instead of adding your dict to body as follows::
+
+    notification = PushNotification.objects.create(
+        title=title,
+        payload=payload,
+        active=PushNotification.PUSH_ACTIVE,
+        sent=PushNotification.PUSH_NOT_SENT
+    )
+
+As some serialization takes place to automatically convert the payload to a JSON string to be stored into the database.
 
 Admin
 -----
@@ -104,5 +116,4 @@ then run the following from the project's root::
 
 TODO
 ----
-1. APNS (Apple) dispatcher is still not implemented
-2. Additional push notification data to be included with payload
+* APNS (Apple) dispatcher is still not implemented

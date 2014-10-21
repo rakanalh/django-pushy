@@ -3,7 +3,7 @@ from celery import task, group
 
 from ..models import PushNotification
 from ..dispatchers import get_dispatcher, Dispatcher
-from pushy.models import get_filtered_devices_queryset
+from pushy.models import get_filtered_devices_queryset, Device
 
 
 @task(queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default'))
@@ -48,13 +48,22 @@ def send_push_notification_group(notification_id, offset=0, limit=1000):
     devices = devices[offset:offset+limit]
 
     for device in devices:
-        send_single_push_notification(device, notification.get_payload())
+        send_single_push_notification(device, notification.payload)
 
     return True
 
 
 @task(queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default'))
 def send_single_push_notification(device, payload):
+    # The task can be called in two ways:
+    # 1) from send_push_notification_group directly with a device instance
+    # 2) As a task using .delay or apply_async with a device id
+    if isinstance(device, int):
+        try:
+            device = Device.objects.get(pk=device)
+        except Device.DoesNotExist:
+            return
+
     dispatcher = get_dispatcher(device.type)
 
     result, canonical_id = dispatcher.send(device.key, payload)
