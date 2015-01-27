@@ -1,6 +1,4 @@
-Django
-django-celery
-python-gcm
+-r requirements.txt
 mock
 south==1.0
 flake8
