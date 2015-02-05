@@ -110,7 +110,9 @@ class APNSDispatcher(Dispatcher):
             enhanced=True
         )
 
-        connection.gateway_server.register_response_listener(self.on_error_response)
+        connection.gateway_server.register_response_listener(
+            self.on_error_response
+        )
 
         self.connection = connection
 
@@ -125,7 +127,9 @@ class APNSDispatcher(Dispatcher):
 
         self.error_response_events[identifier] = event_object
 
-        self.connection.gateway_server.send_notification(token, payload, identifier=identifier)
+        self.connection.gateway_server.send_notification(
+            token, payload, identifier=identifier
+        )
 
         return event_object
 
@@ -146,7 +150,8 @@ class APNSDispatcher(Dispatcher):
 
         status = event.wait_for_response(1.5)
 
-        if status in (self.STATUS_CODE_INVALID_TOKEN, self.STATUS_CODE_INVALID_TOKEN_SIZE):
+        if status in (self.STATUS_CODE_INVALID_TOKEN,
+                      self.STATUS_CODE_INVALID_TOKEN_SIZE):
             push_result = self.PUSH_RESULT_NOT_REGISTERED
         elif status == self.STATUS_CODE_NO_ERROR:
             push_result = self.PUSH_RESULT_SENT
