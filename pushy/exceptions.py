@@ -4,3 +4,7 @@ class PushException(Exception):
 
 class PushGCMApiKeyException(Exception):
     pass
+
+
+class PushAPNsCertificateException(Exception):
+    pass

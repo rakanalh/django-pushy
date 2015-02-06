@@ -1,10 +1,18 @@
+import random
+import apns
+from threading import Event
+
 from gcm import GCM
 from gcm.gcm import GCMNotRegisteredException
 
 from django.conf import settings
 
 from models import Device
-from exceptions import PushException, PushGCMApiKeyException
+from exceptions import (
+    PushException,
+    PushGCMApiKeyException,
+    PushAPNsCertificateException
+)
 
 dispatchers_cache = {}
 
@@ -19,8 +27,138 @@ class Dispatcher(object):
 
 
 class APNSDispatcher(Dispatcher):
+
+    connection = None
+
+    error_response_events = None
+
+    STATUS_CODE_NO_ERROR = 0
+
+    STATUS_CODE_PROCESSING_ERROR = 1
+
+    STATUS_CODE_MISSING_DEVICE_TOKEN = 2
+
+    STATUS_CODE_MISSING_TOPIC = 3
+
+    STATUS_CODE_MISSING_PAYLOAD = 4
+
+    STATUS_CODE_INVALID_TOKEN_SIZE = 5
+
+    STATUS_CODE_INVALID_TOPIC_SIZE = 6
+
+    STATUS_CODE_INVALID_PAYLOAD_SIZE = 7
+
+    STATUS_CODE_INVALID_TOKEN = 8
+
+    STATUS_CODE_SHUTDOWN = 10
+
+    STATUS_CODE_UNKNOWN = 255
+
+    class ErrorResponseEvent(object):
+
+        _status = 0
+
+        _event = None
+
+        def __init__(self):
+            self._event = Event()
+
+        def set_status(self, value):
+            self._status = value
+
+            self._event.set()
+
+        def wait_for_response(self, timeout):
+            self._event.wait(timeout)
+
+            return self._status
+
+    def __init__(self):
+        super(APNSDispatcher, self).__init__()
+
+        self.error_response_events = {}
+
+    @property
+    def cert_file(self):
+        return getattr(settings, 'PUSHY_APNS_CERTIFICATE_FILE', None)
+
+    @property
+    def key_file(self):
+        return getattr(settings, 'PUSHY_APNS_KEY_FILE', None)
+
+    @property
+    def use_sandbox(self):
+        return bool(getattr(settings, 'PUSHY_APNS_SANDBOX', False))
+
+    def on_error_response(self, error_response):
+        status = error_response['status']
+        identifier = error_response['identifier']
+
+        event_object = self.error_response_events.pop(identifier, None)
+
+        if event_object:
+            event_object.set_status(status)
+
+    def establish_connection(self):
+        if self.cert_file is None:
+            raise PushAPNsCertificateException
+
+        connection = apns.APNs(
+            use_sandbox=self.use_sandbox,
+            cert_file=self.cert_file,
+            key_file=self.key_file,
+            enhanced=True
+        )
+
+        connection.gateway_server.register_response_listener(
+            self.on_error_response
+        )
+
+        self.connection = connection
+
+    @staticmethod
+    def create_identifier():
+        return random.getrandbits(32)
+
+    def _send_notification(self, token, payload):
+        identifier = self.create_identifier()
+
+        event_object = self.ErrorResponseEvent()
+
+        self.error_response_events[identifier] = event_object
+
+        self.connection.gateway_server.send_notification(
+            token, payload, identifier=identifier
+        )
+
+        return event_object
+
     def send(self, device_key, data):
-        pass
+        if not self.connection:
+            self.establish_connection()
+
+        payload = apns.Payload(
+            alert=data.pop('alert', None),
+            sound=data.pop('sound', None),
+            badge=data.pop('badge', None),
+            category=data.pop('category', None),
+            content_available=bool(data.pop('content-available', False)),
+            custom=data or {}
+        )
+
+        event = self._send_notification(device_key, payload)
+
+        status = event.wait_for_response(1.5)
+
+        if status in (self.STATUS_CODE_INVALID_TOKEN,
+                      self.STATUS_CODE_INVALID_TOKEN_SIZE):
+            push_result = self.PUSH_RESULT_NOT_REGISTERED
+        elif status == self.STATUS_CODE_NO_ERROR:
+            push_result = self.PUSH_RESULT_SENT
+        else:
+            push_result = self.PUSH_RESULT_EXCEPTION
+
+        return push_result, 0
 
 
 class GCMDispatcher(Dispatcher):

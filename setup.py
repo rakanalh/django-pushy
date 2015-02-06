@@ -26,6 +26,7 @@ setup(
     install_requires=[
         'python-gcm',
         'django',
-        'django-celery'
+        'django-celery',
+        'apns'
     ],
 )
