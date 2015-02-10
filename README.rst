@@ -31,6 +31,7 @@ Add django-pushy to your INSTALLED_APPS::
     )
 
 Configurations::
+
     # Android
     PUSHY_GCM_API_KEY = 'YOUR_API_KEY_HERE'
 
