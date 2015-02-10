@@ -7,7 +7,7 @@ from pushy.models import get_filtered_devices_queryset, Device
 
 
 @celery.shared_task(
-    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default')
+    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', None)
 )
 def check_pending_push_notifications():
     pending_notifications = PushNotification.objects.filter(
@@ -22,7 +22,7 @@ def check_pending_push_notifications():
 
 
 @celery.shared_task(
-    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default')
+    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', None)
 )
 def create_push_notification_groups(notification_id):
     try:
@@ -41,7 +41,7 @@ def create_push_notification_groups(notification_id):
 
 
 @celery.shared_task(
-    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default')
+    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', None)
 )
 def send_push_notification_group(notification_id, offset=0, limit=1000):
     try:
@@ -60,7 +60,7 @@ def send_push_notification_group(notification_id, offset=0, limit=1000):
 
 
 @celery.shared_task(
-    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', 'default')
+    queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', None)
 )
 def send_single_push_notification(device, payload):
     # The task can be called in two ways:
