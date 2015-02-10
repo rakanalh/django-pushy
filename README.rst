@@ -31,8 +31,14 @@ Add django-pushy to your INSTALLED_APPS::
     )
 
 Configurations::
-
+    # Android
     PUSHY_GCM_API_KEY = 'YOUR_API_KEY_HERE'
+
+    # iOS
+    PUSHY_APNS_SANDBOX = True or False
+    PUSHY_APNS_KEY_FILE = 'PATH_TO_KEY_FILE'
+    PUSHY_APNS_CERTIFICATE_FILE = 'PATH_TO_CERTIFICATE_FILE'
+
     PUSHY_QUEUE_DEFAULT_NAME = 'default'
     PUSHY_DEVICE_KEY_LIMIT = 1000
 
@@ -89,6 +95,9 @@ instead of adding your dict to body as follows::
     )
 
 As some serialization takes place to automatically convert the payload to a JSON string to be stored into the database.
+
+**iOS Users Note:**
+Please note that iOS special parameters: alert, sound, badge, content-available are all preset for you to None/False. Django-pushy ads payload you provide to the custom payload field.
 
 Admin
 -----
