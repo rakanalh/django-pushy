@@ -35,6 +35,9 @@ Configurations::
     # Android
     PUSHY_GCM_API_KEY = 'YOUR_API_KEY_HERE'
 
+    # Send JSON payload to GCM server (default is to send as plaintext)
+    PUSHY_GCM_JSON_PAYLOAD = False
+
     # iOS
     PUSHY_APNS_SANDBOX = True or False
     PUSHY_APNS_KEY_FILE = 'PATH_TO_KEY_FILE'

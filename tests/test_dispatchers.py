@@ -42,6 +42,13 @@ class DispatchersTestCase(TestCase):
         with mock.patch('django.conf.settings.PUSHY_GCM_API_KEY', new=None):
             self.assertRaises(PushGCMApiKeyException, android.send, device_key, data)
 
+        with mock.patch('django.conf.settings.PUSHY_GCM_JSON_PAYLOAD', new=True), \
+                mock.patch('gcm.GCM.json_request') as json_request_mock:
+
+            android.send(device_key, data)
+
+            self.assertTrue(json_request_mock.called)
+
         # Check result when canonical value is returned
         gcm = mock.Mock()
         gcm.return_value = 123123
