@@ -164,6 +164,9 @@ class APNSDispatcher(Dispatcher):
 class GCMDispatcher(Dispatcher):
     def send(self, device_key, data):
         gcm_api_key = getattr(settings, 'PUSHY_GCM_API_KEY', None)
+
+        gcm_json_payload = getattr(settings, 'PUSHY_GCM_JSON_PAYLOAD', True)
+
         if not gcm_api_key:
             raise PushGCMApiKeyException()
 
@@ -171,8 +174,17 @@ class GCMDispatcher(Dispatcher):
 
         # Plaintext request
         try:
-            canonical_id = gcm.plaintext_request(registration_id=device_key,
-                                                 data=data)
+            if gcm_json_payload:
+                request_method = gcm.json_request
+
+                # json_request takes a list of registration IDs
+                registration_id = [device_key]
+            else:
+                request_method = gcm.plaintext_request
+                registration_id = device_key
+
+            canonical_id = request_method(registration_id, data=data)
+
             if canonical_id:
                 return self.PUSH_RESULT_SENT, canonical_id
             else:

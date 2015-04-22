@@ -27,5 +27,7 @@ ROOT_URLCONF = 'core.urls'
 CELERY_ALWAYS_EAGER = True
 PUSHY_GCM_API_KEY = 'blah-blah'
 
+PUSHY_GCM_JSON_PAYLOAD = False
+
 PUSHY_APNS_CERTIFICATE_FILE = 'aps_development.pem'
 PUSHY_APNS_KEY_FILE = 'private_key.pem'
