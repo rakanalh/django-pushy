@@ -165,7 +165,7 @@ class GCMDispatcher(Dispatcher):
     def send(self, device_key, data):
         gcm_api_key = getattr(settings, 'PUSHY_GCM_API_KEY', None)
 
-        gcm_json_payload = getattr(settings, 'PUSHY_GCM_JSON_PAYLOAD', False)
+        gcm_json_payload = getattr(settings, 'PUSHY_GCM_JSON_PAYLOAD', True)
 
         if not gcm_api_key:
             raise PushGCMApiKeyException()
