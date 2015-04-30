@@ -5,7 +5,8 @@ from threading import Event
 from gcm import GCM
 from gcm.gcm import (
     GCMNotRegisteredException,
-    GCMException, GCMUnavailableException)
+    GCMUnavailableException
+)
 
 from django.conf import settings
 
