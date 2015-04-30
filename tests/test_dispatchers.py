@@ -81,6 +81,50 @@ class DispatchersTestCase(TestCase):
             self.assertEquals(result, dispatchers.GCMDispatcher.PUSH_RESULT_EXCEPTION)
             self.assertEquals(canonical_id, 0)
 
+    @mock.patch('gcm.GCM.json_request')
+    def test__send_json(self, json_request_mock):
+        android = dispatchers.get_dispatcher(Device.DEVICE_TYPE_ANDROID)
+
+        assert isinstance(android, dispatchers.GCMDispatcher)
+
+        api_key = 'TEST_API_KEY'
+        device_key = 'TEST_DEVICE_KEY'
+        data = {'title': 'Test', 'body': 'Test body'}
+
+        gcm_client = dispatchers.GCM(api_key)
+
+        # Test canonical not update
+        json_request_mock.return_value = {}
+        self.assertEqual(android._send_json(gcm_client, device_key, data), 0)
+
+        # Test canonical updated
+        canonical_id = 'TEST_CANONICAL'
+        json_request_mock.return_value = {
+            'canonical': {
+                device_key: canonical_id
+            }
+        }
+        self.assertEqual(android._send_json(gcm_client, device_key, data), canonical_id)
+
+        # Test Missing Registration
+        json_request_mock.return_value = {
+            'errors': {
+                'NotRegistered': [device_key]
+            }
+        }
+        self.assertRaises(dispatchers.GCMNotRegisteredException,
+                          android._send_json, gcm_client, device_key, data)
+
+        # Test handling unexpected (server) errors
+
+        json_request_mock.return_value = {
+            'errors': {
+                'InternalServerError': [device_key]
+            }
+        }
+        self.assertRaises(dispatchers.GCMUnavailableException,
+                          android._send_json, gcm_client, device_key, data)
+
 
 @mock.patch('pushy.dispatchers.APNSDispatcher._send_notification',
             new=lambda *a: dispatchers.APNSDispatcher.ErrorResponseEvent())

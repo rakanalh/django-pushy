@@ -3,7 +3,9 @@ import apns
 from threading import Event
 
 from gcm import GCM
-from gcm.gcm import GCMNotRegisteredException
+from gcm.gcm import (
+    GCMNotRegisteredException,
+    GCMException, GCMUnavailableException)
 
 from django.conf import settings
 
@@ -162,6 +164,35 @@ class APNSDispatcher(Dispatcher):
 
 
 class GCMDispatcher(Dispatcher):
+
+    def _send_plaintext(self, gcm_client, device_key, data):
+        return gcm_client.plaintext_request(device_key, data=data)
+
+    def _send_json(self, gcm_client, device_key, data):
+        response = gcm_client.json_request([device_key], data=data)
+
+        device_error = None
+
+        if 'errors' in response:
+            for error, reg_ids in response['errors'].items():
+                # Check for errors and act accordingly
+
+                if device_key in reg_ids:
+                    device_error = error
+                    break
+
+        if device_error:
+            gcm_client.raise_error(device_error)
+
+            raise GCMUnavailableException(device_error)
+
+        if 'canonical' in response:
+            canonical_id = response['canonical'].get(device_key, 0)
+        else:
+            canonical_id = 0
+
+        return canonical_id
+
     def send(self, device_key, data):
         gcm_api_key = getattr(settings, 'PUSHY_GCM_API_KEY', None)
 
@@ -175,15 +206,9 @@ class GCMDispatcher(Dispatcher):
         # Plaintext request
         try:
             if gcm_json_payload:
-                request_method = gcm.json_request
-
-                # json_request takes a list of registration IDs
-                registration_id = [device_key]
+                canonical_id = self._send_json(gcm, device_key, data)
             else:
-                request_method = gcm.plaintext_request
-                registration_id = device_key
-
-            canonical_id = request_method(registration_id, data=data)
+                canonical_id = self._send_plaintext(gcm, device_key, data)
 
             if canonical_id:
                 return self.PUSH_RESULT_SENT, canonical_id
