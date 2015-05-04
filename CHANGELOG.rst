@@ -26,3 +26,6 @@ v0.1.6 (2015-04-22)
 =================
 * Changed the default payload dispatch to use gcm.json_request as a default. See README.rst for config to change default.
 
+v0.1.7 (2015-05-05)
+===================
+* Bug fixes in json response handling
