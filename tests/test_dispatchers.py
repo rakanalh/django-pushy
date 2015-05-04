@@ -122,7 +122,7 @@ class DispatchersTestCase(TestCase):
                 'InternalServerError': [device_key]
             }
         }
-        self.assertRaises(dispatchers.GCMUnavailableException,
+        self.assertRaises(dispatchers.GCMException,
                           android._send_json, gcm_client, device_key, data)
 
 

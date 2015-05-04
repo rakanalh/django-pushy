@@ -5,7 +5,7 @@ from threading import Event
 from gcm import GCM
 from gcm.gcm import (
     GCMNotRegisteredException,
-    GCMUnavailableException
+    GCMException
 )
 
 from django.conf import settings
@@ -185,7 +185,7 @@ class GCMDispatcher(Dispatcher):
         if device_error:
             gcm_client.raise_error(device_error)
 
-            raise GCMUnavailableException(device_error)
+            raise GCMException(device_error)
 
         if 'canonical' in response:
             canonical_id = response['canonical'].get(device_key, 0)
