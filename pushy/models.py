@@ -52,14 +52,18 @@ class Device(models.Model):
     DEVICE_TYPE_ANDROID = 1
     DEVICE_TYPE_IOS = 2
     DEVICE_TYPE_CHOICES = (
-        (DEVICE_TYPE_ANDROID, _('Android')),
-        (DEVICE_TYPE_IOS, _('iOS'))
+        (DEVICE_TYPE_ANDROID, 'Android'),
+        (DEVICE_TYPE_IOS, 'iOS')
     )
 
     key = models.TextField()
     type = models.SmallIntegerField(choices=DEVICE_TYPE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
+    def __unicode__(self):
+        # Reverse choices
+        device_choices = dict(reversed(self.DEVICE_TYPE_CHOICES))
+        return "{} Device ID: {}".format(device_choices[self.type], self.pk)
 
 def get_filtered_devices_queryset(notification):
     devices = Device.objects.all()
