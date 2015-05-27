@@ -124,3 +124,9 @@ Install mock::
 then run the following from the project's root::
 
     python tests/run_tests.py
+
+
+License
+-------
+
+MIT
