@@ -25,7 +25,7 @@ class Dispatcher(object):
     PUSH_RESULT_NOT_REGISTERED = 2
     PUSH_RESULT_EXCEPTION = 3
 
-    def send(self, device_key, data): #noqa
+    def send(self, device_key, data):  # noqa
         raise NotImplementedError()
 
 

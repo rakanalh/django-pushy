@@ -65,6 +65,7 @@ class Device(models.Model):
         device_choices = dict(reversed(self.DEVICE_TYPE_CHOICES))
         return "{} Device ID: {}".format(device_choices[self.type], self.pk)
 
+
 def get_filtered_devices_queryset(notification):
     devices = Device.objects.all()
 
