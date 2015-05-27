@@ -9,6 +9,9 @@ Your push notifications handled at scale.
     :alt: Number of PyPI downloads
 .. image:: https://coveralls.io/repos/rakanalh/django-pushy/badge.png?branch=master
   :target: https://coveralls.io/r/rakanalh/django-pushy?branch=master
+.. image:: https://landscape.io/github/rakanalh/django-pushy/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/rakanalh/django-pushy/master
+   :alt: Code Health
 
 
 What does it do?
