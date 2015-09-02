@@ -1,9 +1,10 @@
-from django.conf import settings
 import celery
 
+from django.conf import settings
+from datetime import datetime
 from ..models import PushNotification
 from ..dispatchers import get_dispatcher, Dispatcher
-from pushy.models import get_filtered_devices_queryset, Device
+from ..models import get_filtered_devices_queryset, Device
 
 
 @celery.shared_task(
@@ -11,11 +12,13 @@ from pushy.models import get_filtered_devices_queryset, Device
 )
 def check_pending_push_notifications():
     pending_notifications = PushNotification.objects.filter(
-        sent=PushNotification.PUSH_NOT_SENT)
+        sent=PushNotification.PUSH_NOT_SENT
+    )
 
     for pending_notification in pending_notifications:
-        create_push_notification_groups.apply_async(
-            kwargs={'notification_id': pending_notification.id})
+        create_push_notification_groups.apply_async(kwargs={
+            'notification_id': pending_notification.id
+        })
 
         pending_notification.sent = PushNotification.PUSH_SENT
         pending_notification.save()
@@ -35,9 +38,10 @@ def create_push_notification_groups(notification_id):
     if devices.count() > 0:
         count = devices.count()
         limit = getattr(settings, 'PUSHY_DEVICE_KEY_LIMIT', 1000)
-        celery.group(send_push_notification_group.s(
-            notification_id, offset, limit)
-            for offset in range(0, count, limit)).delay()
+        celery.chord(
+            send_push_notification_group.s(notification_id, offset, limit)
+            for offset in range(0, count, limit)
+        )(notify_push_notification_sent.s(notification_id)).delay()
 
 
 @celery.shared_task(
@@ -49,9 +53,11 @@ def send_push_notification_group(notification_id, offset=0, limit=1000):
     except PushNotification.DoesNotExist:
         return False
 
+    notification.date_started = datetime.now()
+
     devices = get_filtered_devices_queryset(notification)
 
-    devices = devices[offset:offset+limit]
+    devices = devices[offset:offset + limit]
 
     for device in devices:
         send_single_push_notification(device, notification.payload)
@@ -84,3 +90,17 @@ def send_single_push_notification(device, payload):
         device.delete()
 
     return True
+
+
+@celery.shared_task(
+    queue=getattr(settings, 'PUSH_QUEUE_DEFAULT_NAME', None)
+)
+def notify_push_notification_sent(notification_id):
+    try:
+        notification = PushNotification.objects.get(pk=notification_id)
+    except PushNotification.DoesNotExist:
+        return False
+
+    notification.date_finished = datetime.now()
+    notification.save()
+
