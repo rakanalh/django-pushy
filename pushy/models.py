@@ -30,8 +30,8 @@ class PushNotification(models.Model):
                                     default=PUSH_NOT_SENT)
 
     date_created = models.DateTimeField(auto_now_add=True)
-    date_started = models.DateTimeField()
-    date_finished = models.DateTimeField()
+    date_started = models.DateTimeField(null=True)
+    date_finished = models.DateTimeField(null=True)
     filter_type = models.SmallIntegerField(blank=True, default=0)
     filter_user = models.IntegerField(blank=True, default=0)
 
