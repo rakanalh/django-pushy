@@ -32,6 +32,7 @@ class PushNotificationAdmin(admin.ModelAdmin):
     )
     list_filter = ('active', 'sent')
     search_fields = ('title', )
+    readonly_fields = ('date_started', 'date_finished')
 
 
 class DeviceAdmin(admin.ModelAdmin):

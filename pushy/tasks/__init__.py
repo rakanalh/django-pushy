@@ -35,6 +35,9 @@ def create_push_notification_groups(notification_id):
 
     devices = get_filtered_devices_queryset(notification)
 
+    notification.date_started = datetime.now()
+    notification.save()
+
     if devices.count() > 0:
         count = devices.count()
         limit = getattr(settings, 'PUSHY_DEVICE_KEY_LIMIT', 1000)
@@ -42,6 +45,9 @@ def create_push_notification_groups(notification_id):
             send_push_notification_group.s(notification_id, offset, limit)
             for offset in range(0, count, limit)
         )(notify_push_notification_sent.s(notification_id)).delay()
+    else:
+        notification.date_finished = datetime.now()
+        notification.save()
 
 
 @celery.shared_task(
@@ -52,8 +58,6 @@ def send_push_notification_group(notification_id, offset=0, limit=1000):
         notification = PushNotification.objects.get(pk=notification_id)
     except PushNotification.DoesNotExist:
         return False
-
-    notification.date_started = datetime.now()
 
     devices = get_filtered_devices_queryset(notification)
 
