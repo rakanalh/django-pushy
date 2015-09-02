@@ -103,4 +103,3 @@ def notify_push_notification_sent(notification_id):
 
     notification.date_finished = datetime.now()
     notification.save()
-
