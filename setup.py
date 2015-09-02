@@ -11,7 +11,6 @@ setup(
         'pushy',
         'pushy/tasks',
         'pushy/migrations',
-        'pushy/south_migrations'
     ],
     include_package_data=True,
 
