@@ -15,7 +15,9 @@ class PushNotificationForm(forms.ModelForm):
 
     class Meta:
         model = PushNotification
-        fields = ('title', 'body', 'active', 'sent', 'filter_type', 'filter_user')
+        fields = (
+            'title', 'body', 'active', 'sent', 'filter_type', 'filter_user'
+        )
 
 
 class PushNotificationAdmin(admin.ModelAdmin):
