@@ -22,9 +22,17 @@ class PushNotificationForm(forms.ModelForm):
 
 class PushNotificationAdmin(admin.ModelAdmin):
     form = PushNotificationForm
-    list_display = ('title', 'date_created', 'active', 'sent')
+    list_display = (
+        'title',
+        'date_created',
+        'active',
+        'sent',
+        'date_started',
+        'date_finished'
+    )
     list_filter = ('active', 'sent')
     search_fields = ('title', )
+    readonly_fields = ('date_started', 'date_finished')
 
 
 class DeviceAdmin(admin.ModelAdmin):

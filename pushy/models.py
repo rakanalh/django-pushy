@@ -10,6 +10,7 @@ class PushNotification(models.Model):
 
     PUSH_NOT_SENT = 0
     PUSH_SENT = 1
+    PUSH_IN_PROGRESS = 2
 
     PUSH_CHOICES = (
         (PUSH_ACTIVE, _('Active')),
@@ -18,6 +19,7 @@ class PushNotification(models.Model):
 
     PUSH_SENT_CHOICES = (
         (PUSH_NOT_SENT, _('Not Sent')),
+        (PUSH_IN_PROGRESS, _('In Progress')),
         (PUSH_SENT, _('Sent'))
     )
 
@@ -30,7 +32,8 @@ class PushNotification(models.Model):
                                     default=PUSH_NOT_SENT)
 
     date_created = models.DateTimeField(auto_now_add=True)
-
+    date_started = models.DateTimeField(null=True)
+    date_finished = models.DateTimeField(null=True)
     filter_type = models.SmallIntegerField(blank=True, default=0)
     filter_user = models.IntegerField(blank=True, default=0)
 
