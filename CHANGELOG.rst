@@ -34,4 +34,7 @@ v0.1.8 (2015-05-27)
 ===================
 * Changed landscape lint problems / Changed license to MIT
 
-
+v0.1.9 (2015-10-06)
+===================
+* Added new database fields date_started and date_finished for push notification
+* Notification are started using a chord with a group of tasks and a callback
