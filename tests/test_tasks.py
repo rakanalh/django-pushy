@@ -96,7 +96,7 @@ class TasksTestCase(TestCase):
             check_pending_push_notifications()
 
         notification = PushNotification.objects.get(pk=notification.id)
-        self.assertEqual(notification.sent, PushNotification.PUSH_SENT)
+        self.assertEqual(notification.sent, PushNotification.PUSH_IN_PROGRESS)
 
     def test_send_notification_groups(self):
         notification = PushNotification.objects.create(
