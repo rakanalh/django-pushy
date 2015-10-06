@@ -98,6 +98,10 @@ class TasksTestCase(TestCase):
         notification = PushNotification.objects.get(pk=notification.id)
         self.assertEqual(notification.sent, PushNotification.PUSH_IN_PROGRESS)
 
+        create_push_notification_groups(notification.id)
+        notification = PushNotification.objects.get(pk=notification.id)
+        self.assertEqual(notification.sent, PushNotification.PUSH_SENT)
+
     def test_send_notification_groups(self):
         notification = PushNotification.objects.create(
             title='test',

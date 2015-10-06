@@ -46,6 +46,7 @@ def create_push_notification_groups(notification_id):
         )(notify_push_notification_sent.si(notification_id))
     else:
         notification.date_finished = datetime.now()
+        notification.sent = PushNotification.PUSH_SENT
         notification.save()
 
 
