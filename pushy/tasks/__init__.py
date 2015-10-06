@@ -20,9 +20,6 @@ def check_pending_push_notifications():
             'notification_id': pending_notification.id
         })
 
-        pending_notification.sent = PushNotification.PUSH_SENT
-        pending_notification.save()
-
 
 @celery.shared_task(
     queue=getattr(settings, 'PUSHY_QUEUE_DEFAULT_NAME', None)
@@ -44,7 +41,7 @@ def create_push_notification_groups(notification_id):
         celery.chord(
             send_push_notification_group.s(notification_id, offset, limit)
             for offset in range(0, count, limit)
-        )(notify_push_notification_sent.s(notification_id)).delay()
+        )(notify_push_notification_sent.si(notification_id))
     else:
         notification.date_finished = datetime.now()
         notification.save()
@@ -97,7 +94,7 @@ def send_single_push_notification(device, payload):
 
 
 @celery.shared_task(
-    queue=getattr(settings, 'PUSH_QUEUE_DEFAULT_NAME', None)
+    queue=getattr(settings, 'PUSH_QUEUE_DEFAULT_NAME', None),
 )
 def notify_push_notification_sent(notification_id):
     try:
@@ -106,4 +103,5 @@ def notify_push_notification_sent(notification_id):
         return False
 
     notification.date_finished = datetime.now()
+    notification.sent = PushNotification.PUSH_SENT
     notification.save()
