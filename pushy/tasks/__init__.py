@@ -19,6 +19,8 @@ def check_pending_push_notifications():
         create_push_notification_groups.apply_async(kwargs={
             'notification_id': pending_notification.id
         })
+        pending_notification.sent = PushNotification.PUSH_IN_PROGRESS
+        pending_notification.save()
 
 
 @celery.shared_task(
