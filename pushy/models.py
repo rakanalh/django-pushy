@@ -63,6 +63,9 @@ class Device(models.Model):
     type = models.SmallIntegerField(choices=DEVICE_TYPE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
+    class Meta:
+        unique_together = ('key', 'type')
+
     def __unicode__(self):
         # Reverse choices
         device_choices = dict(reversed(self.DEVICE_TYPE_CHOICES))

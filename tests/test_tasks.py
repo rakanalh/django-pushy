@@ -23,15 +23,15 @@ class TasksTestCase(TestCase):
             filter_type=Device.DEVICE_TYPE_IOS
         )
 
-        for _ in range(0, 3):
+        for i in range(0, 3):
             Device.objects.create(
-                key='TEST_DEVICE_KEY',
+                key='TEST_DEVICE_KEY_{}'.format(i),
                 type=Device.DEVICE_TYPE_IOS
             )
 
-        for _ in range(0, 10):
+        for i in range(0, 10):
             Device.objects.create(
-                key='TEST_DEVICE_KEY',
+                key='TEST_DEVICE_KEY_{}'.format(i),
                 type=Device.DEVICE_TYPE_ANDROID
             )
 
@@ -50,9 +50,9 @@ class TasksTestCase(TestCase):
         user2 = get_user_model().objects.get(pk=2)
 
         # Add 5 devices to user2
-        for _ in range(0, 5):
+        for i in range(0, 5):
             Device.objects.create(
-                key='TEST_DEVICE_KEY',
+                key='TEST_DEVICE_KEY_{}'.format(i),
                 type=Device.DEVICE_TYPE_ANDROID,
                 user=user2
             )
@@ -114,7 +114,7 @@ class TasksTestCase(TestCase):
         self.assertFalse(send_push_notification_group(13, 0, 1))
 
         # Create a test device key
-        device = Device.objects.create(key='TEST_DEVICE_KEY', type=Device.DEVICE_TYPE_ANDROID)
+        device = Device.objects.create(key='TEST_DEVICE_KEY_ANDROID', type=Device.DEVICE_TYPE_ANDROID)
 
         # Make sure canonical ID is saved
         gcm = mock.Mock()
@@ -134,7 +134,7 @@ class TasksTestCase(TestCase):
             self.assertRaises(Device.DoesNotExist, Device.objects.get, pk=device.id)
 
         # Create an another test device key
-        device = Device.objects.create(key='TEST_DEVICE_KEY', type=Device.DEVICE_TYPE_ANDROID)
+        device = Device.objects.create(key='TEST_DEVICE_KEY_ANDROID2', type=Device.DEVICE_TYPE_ANDROID)
 
         # No canonical ID wasn't returned
         gcm = mock.Mock()
@@ -143,7 +143,7 @@ class TasksTestCase(TestCase):
             send_push_notification_group(notification.id, 0, 1)
 
             device = Device.objects.get(pk=device.id)
-            self.assertEqual(device.key, 'TEST_DEVICE_KEY')
+            self.assertEqual(device.key, 'TEST_DEVICE_KEY_ANDROID2')
 
     def test_create_push_notification_groups_non_existent_notification(self):
         result = create_push_notification_groups(1000)
