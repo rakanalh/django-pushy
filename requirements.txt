@@ -1,4 +1,4 @@
 Django
-django-celery
-python-gcm
-apns
+django-celery==3.1.17
+python-gcm==0.4
+apns==2.0.1

@@ -24,9 +24,9 @@ setup(
 
     # Dependent packages (distributions)
     install_requires=[
-        'python-gcm',
         'django',
-        'django-celery',
-        'apns'
+        'python-gcm==0.4',
+        'django-celery==3.1.17',
+        'apns==2.0.1'
     ],
 )

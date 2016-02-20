@@ -170,7 +170,8 @@ class GCMDispatcher(Dispatcher):
         return gcm_client.plaintext_request(device_key, data=data)
 
     def _send_json(self, gcm_client, device_key, data):
-        response = gcm_client.json_request([device_key], data=data)
+        response = gcm_client.json_request(registration_ids=[device_key],
+                                           data=data)
 
         device_error = None
 
