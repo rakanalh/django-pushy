@@ -1,7 +1,7 @@
 import celery
 
 from django.conf import settings
-from datetime import datetime
+from django.utils import timezone
 from ..models import PushNotification
 from ..dispatchers import get_dispatcher, Dispatcher
 from ..models import get_filtered_devices_queryset, Device
@@ -34,7 +34,7 @@ def create_push_notification_groups(notification_id):
 
     devices = get_filtered_devices_queryset(notification)
 
-    notification.date_started = datetime.now()
+    notification.date_started = timezone.now()
     notification.save()
 
     if devices.count() > 0:
@@ -45,7 +45,7 @@ def create_push_notification_groups(notification_id):
             for offset in range(0, count, limit)
         )(notify_push_notification_sent.si(notification_id))
     else:
-        notification.date_finished = datetime.now()
+        notification.date_finished = timezone.now()
         notification.sent = PushNotification.PUSH_SENT
         notification.save()
 
@@ -105,6 +105,6 @@ def notify_push_notification_sent(notification_id):
     except PushNotification.DoesNotExist:
         return False
 
-    notification.date_finished = datetime.now()
+    notification.date_finished = timezone.now()
     notification.sent = PushNotification.PUSH_SENT
     notification.save()
