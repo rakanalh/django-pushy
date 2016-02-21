@@ -29,4 +29,7 @@ setup(
         'django-celery==3.1.17',
         'apns==2.0.1'
     ],
+    extras_require={
+        'rest_api': ['djangorestframework>=3.0']
+    }
 )
