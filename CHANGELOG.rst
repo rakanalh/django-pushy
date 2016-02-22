@@ -38,3 +38,8 @@ v0.1.9 (2015-10-06)
 ===================
 * Added new database fields date_started and date_finished for push notification
 * Notification are started using a chord with a group of tasks and a callback
+
+v0.1.10 (2016-02-22)
+====================
+* Dropped Python 2.6 support
+* Added Restful APIs to create & destroy devices using DRF

@@ -106,6 +106,31 @@ As some serialization takes place to automatically convert the payload to a JSON
 **iOS Users Note:**
 Please note that iOS special parameters: alert, sound, badge, content-available are all preset for you to None/False. Django-pushy ads payload you provide to the custom payload field.
 
+
+Restful APIs
+------------
+
+To use Restful APIs, pushy requires DRF >= 3.0.::
+
+    pip install django-pushy[apis]
+
+
+And add the following to your urls.py::
+
+    from pushy.contrib.rest_api import urls as pushy_rest_urls
+
+    urlpatterns += [
+        url(r'^api/', include(rest_urls))
+    ]
+
+At this point you'll be able to make POST & DELETE requests to /api/pushy/device. An example request (using [httpie](https://github.com/jkbrzt/httpie) tool) to create a key is::
+
+    http http://<URL>/api/pushy/device/ key=<key-here> type=ios --json
+
+To delete a key::
+
+    http delete http://<URL>/api/pushy/device/ key=<key-here> --json
+
 Admin
 -----
 Django-pushy also provides an admin interface to it's models so that you can add a push notification from admin.
@@ -126,7 +151,7 @@ Install mock::
 
 then run the following from the project's root::
 
-    python tests/run_tests.py
+    py.test .
 
 
 License
