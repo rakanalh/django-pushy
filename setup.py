@@ -30,6 +30,6 @@ setup(
         'apns==2.0.1'
     ],
     extras_require={
-        'rest_api': ['djangorestframework>=3.0']
+        'rest_api': ['djangorestframework>=3.0,<3.3']
     }
 )
