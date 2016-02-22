@@ -9,5 +9,5 @@ urlpatterns = patterns(
             'post': 'create',
             'delete': 'destroy'
         }),
-        name='device-update'),
+        name='pushy-devices'),
 )
