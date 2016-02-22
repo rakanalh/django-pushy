@@ -1,31 +1,26 @@
 language: python
 
 python:
-  - 2.6
   - 2.7
 
 env:
-  - DJANGO=1.5
-  - DJANGO=1.6
-  - DJANGO=1.7
-
-matrix:
-    exclude:
-        - python: 2.6
-          env: DJANGO=1.7
+  - DJANGO=1.6.11
+  - DJANGO=1.7.11
+  - DJANGO=1.8.9
+  - DJANGO=1.9.2
 
 install:
-  - pip install -q Django==$DJANGO --use-mirrors
-  - pip install -r requirements.txt --use-mirrors
-  - pip install -q coveralls --use-mirrors
-  - pip install flake8 mock --use-mirrors
+  - pip install -q Django==$DJANGO
+  - pip install -r requirements_dev.txt
+  - pip install -q coveralls
+  - pip install flake8 mock
   - python setup.py -q install
 
 before_script:
     - flake8 --exclude=migrations,south_migrations pushy
 
 script:
-    - coverage run tests/run_tests.py
+    - py.test -q
 
 after_success:
     - coveralls

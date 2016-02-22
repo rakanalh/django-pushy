@@ -24,9 +24,12 @@ setup(
 
     # Dependent packages (distributions)
     install_requires=[
-        'django',
+        'django>=1.6',
         'python-gcm==0.4',
         'django-celery==3.1.17',
         'apns==2.0.1'
     ],
+    extras_require={
+        'rest_api': ['djangorestframework>=3.0']
+    }
 )
