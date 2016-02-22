@@ -15,12 +15,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     def validate_type(self, value):
         types_map = get_types_map()
-
-        if value in types_map.keys():
-            return types_map[value]
-
-        raise serializers.ValidationError(
-            '{} is not a valid choice'.format(value))
+        return types_map[value]
 
     class Meta:
         model = Device
