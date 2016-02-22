@@ -2,3 +2,6 @@
 mock
 south==1.0
 flake8
+pytest
+pytest-django
+pytest-cov
