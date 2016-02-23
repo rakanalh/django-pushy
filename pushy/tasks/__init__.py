@@ -1,3 +1,4 @@
+import datetime
 import celery
 
 from django.conf import settings
@@ -108,3 +109,19 @@ def notify_push_notification_sent(notification_id):
     notification.date_finished = timezone.now()
     notification.sent = PushNotification.PUSH_SENT
     notification.save()
+
+
+@celery.shared_task(
+    queue=getattr(settings, 'PUSH_QUEUE_DEFAULT_NAME', None)
+)
+def clean_sent_notifications():
+    max_age = getattr(settings, 'PUSHY_NOTIFICATION_MAX_AGE', None)
+
+    if not max_age or not isinstance(max_age, datetime.timedelta):
+        raise ValueError('Notification max age value is not defined.')
+
+    delete_before_date = timezone.now() - max_age
+    PushNotification.objects.filter(
+        sent=PushNotification.PUSH_SENT,
+        date_finished__lt=delete_before_date
+    ).delete()

@@ -1,10 +1,26 @@
-from django.contrib.auth import get_user_model
-from gcm.gcm import GCMNotRegisteredException
+import datetime
 import mock
+
+from django.contrib.auth import get_user_model
 from django.test import TestCase
-from pushy.models import PushNotification, Device, get_filtered_devices_queryset
-from pushy.tasks import check_pending_push_notifications, send_push_notification_group, send_single_push_notification, \
-    create_push_notification_groups
+from django.test.utils import override_settings
+from django.utils import timezone
+
+from gcm.gcm import GCMNotRegisteredException
+
+from pushy.models import (
+    PushNotification,
+    Device,
+    get_filtered_devices_queryset
+)
+
+from pushy.tasks import (
+    check_pending_push_notifications,
+    send_push_notification_group,
+    send_single_push_notification,
+    create_push_notification_groups,
+    clean_sent_notifications
+)
 
 
 class TasksTestCase(TestCase):
@@ -152,3 +168,51 @@ class TasksTestCase(TestCase):
     def test_non_existent_device(self):
         result = send_single_push_notification(1000, {'payload': 'test'})
         self.assertFalse(result)
+
+    def test_delete_old_notifications_undefine_max_age(self):
+        self.assertRaises(ValueError, clean_sent_notifications)
+
+    @override_settings(PUSHY_NOTIFICATION_MAX_AGE=datetime.timedelta(days=90))
+    def test_delete_old_notifications(self):
+        for i in xrange(10):
+            date_started = timezone.now() - datetime.timedelta(days=91)
+            date_finished = date_started
+            notification = PushNotification()
+            notification.title = 'title {}'.format(i)
+            notification.body = '{}'
+            notification.sent = PushNotification.PUSH_SENT
+            notification.date_started = date_started
+            notification.date_finished = date_finished
+            notification.save()
+
+        clean_sent_notifications()
+
+        self.assertEquals(PushNotification.objects.count(), 0)
+
+    @override_settings(PUSHY_NOTIFICATION_MAX_AGE=datetime.timedelta(days=90))
+    def test_delete_old_notifications_with_remaining_onces(self):
+        for i in xrange(10):
+            date_started = timezone.now() - datetime.timedelta(days=91)
+            date_finished = date_started
+            notification = PushNotification()
+            notification.title = 'title {}'.format(i)
+            notification.body = '{}'
+            notification.sent = PushNotification.PUSH_SENT
+            notification.date_started = date_started
+            notification.date_finished = date_finished
+            notification.save()
+
+        for i in xrange(10):
+            date_started = timezone.now() - datetime.timedelta(days=61)
+            date_finished = date_started
+            notification = PushNotification()
+            notification.title = 'title {}'.format(i)
+            notification.body = '{}'
+            notification.sent = PushNotification.PUSH_SENT
+            notification.date_started = date_started
+            notification.date_finished = date_finished
+            notification.save()
+
+        clean_sent_notifications()
+
+        self.assertEquals(PushNotification.objects.count(), 10)
