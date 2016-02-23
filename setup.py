@@ -1,18 +1,13 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='Django-Pushy',
-    version='0.1.9',
+    version='0.1.10',
     author='Rakan Alhneiti',
     author_email='rakan.alhneiti@gmail.com',
 
     # Packages
-    packages=[
-        'pushy',
-        'pushy/tasks',
-        'pushy/migrations',
-        'pushy/south_migrations'
-    ],
+    packages=find_packages(),
     include_package_data=True,
 
     # Details
