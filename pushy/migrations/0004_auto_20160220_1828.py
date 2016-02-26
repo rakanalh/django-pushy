@@ -17,8 +17,4 @@ class Migration(migrations.Migration):
             name='sent',
             field=models.SmallIntegerField(choices=[(0, 'Not Sent'), (2, 'In Progress'), (1, 'Sent')], default=0),
         ),
-        migrations.AlterUniqueTogether(
-            name='device',
-            unique_together=set([('key', 'type')]),
-        ),
     ]
