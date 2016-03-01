@@ -59,7 +59,7 @@ class Device(models.Model):
         (DEVICE_TYPE_IOS, 'iOS')
     )
 
-    key = models.TextField()
+    key = models.CharField(max_length=255)
     type = models.SmallIntegerField(choices=DEVICE_TYPE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
