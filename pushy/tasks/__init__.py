@@ -2,6 +2,8 @@ import datetime
 import celery
 
 from django.conf import settings
+from django.db import transaction
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from ..models import PushNotification
 from ..dispatchers import get_dispatcher, Dispatcher
@@ -89,8 +91,12 @@ def send_single_push_notification(device, payload):
 
     if result == Dispatcher.PUSH_RESULT_SENT:
         if canonical_id > 0:
-            device.key = canonical_id
-            device.save()
+            try:
+                with transaction.atomic():
+                    device.key = canonical_id
+                    device.save()
+            except IntegrityError:
+                device.delete()
     elif result == Dispatcher.PUSH_RESULT_NOT_REGISTERED:
         device.delete()
 

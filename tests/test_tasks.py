@@ -161,6 +161,25 @@ class TasksTestCase(TestCase):
             device = Device.objects.get(pk=device.id)
             self.assertEqual(device.key, 'TEST_DEVICE_KEY_ANDROID2')
 
+    def test_delete_old_key_if_canonical_is_registered(self):
+        notification = PushNotification.objects.create(
+            title='test',
+            payload=self.payload,
+            active=PushNotification.PUSH_ACTIVE,
+            sent=PushNotification.PUSH_NOT_SENT
+        )
+        # Create a test device key
+        device = Device.objects.create(key='TEST_DEVICE_KEY_ANDROID', type=Device.DEVICE_TYPE_ANDROID)
+        Device.objects.create(key='123123', type=Device.DEVICE_TYPE_ANDROID)
+
+        # Make sure old device is deleted if the new canonical ID already exists
+        gcm = mock.Mock()
+        gcm.return_value = '123123'
+        with mock.patch('gcm.GCM.plaintext_request', new=gcm):
+            send_push_notification_group(notification.id, 0, 1)
+
+            self.assertFalse(Device.objects.filter(pk=device.id).exists())
+
     def test_create_push_notification_groups_non_existent_notification(self):
         result = create_push_notification_groups(1000)
         self.assertFalse(result)
