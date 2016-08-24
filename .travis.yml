@@ -4,10 +4,11 @@ python:
   - 2.7
 
 env:
-  - DJANGO=1.7.11
-  - DJANGO=1.8.9
-  - DJANGO=1.9.2
-
+  - Django=1.7.11
+  - Django=1.8.9
+  - Django=1.9.2
+  - Django=1.10
+  
 install:
   - pip install -q Django==$DJANGO
   - pip install -r requirements_dev.txt
