@@ -1,6 +1,5 @@
 -r requirements.txt
 mock
-south==1.0
 flake8
 pytest
 pytest-django

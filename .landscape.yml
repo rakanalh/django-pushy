@@ -2,4 +2,4 @@ uses:
     - django
     - celery
 ignore-paths:
-    - pushy/south_migrations
+    - pushy/migrations

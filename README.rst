@@ -47,13 +47,7 @@ Configurations::
     PUSHY_DEVICE_KEY_LIMIT = 1000
 
 
-If you're using Django < 1.7 and using south, make sure you do the following::
-
-    pip install South==1.0
-    python manage.py syncdb
-    python manage.py migrate
-
-If you're using Django 1.7, you only have to perform::
+Run DB migrations::
 
     python manage.py migrate
 
