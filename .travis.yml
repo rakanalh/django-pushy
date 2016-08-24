@@ -4,7 +4,6 @@ python:
   - 2.7
 
 env:
-  - DJANGO=1.6.11
   - DJANGO=1.7.11
   - DJANGO=1.8.9
   - DJANGO=1.9.2
