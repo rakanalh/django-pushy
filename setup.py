@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='Django-Pushy',
-    version='0.1.11',
+    version='0.1.12',
     author='Rakan Alhneiti',
     author_email='rakan.alhneiti@gmail.com',
 

@@ -43,3 +43,13 @@ v0.1.10 (2016-02-22)
 ====================
 * Dropped Python 2.6 support
 * Added Restful APIs to create & destroy devices using DRF
+
+v0.1.11 (2016-03-01)
+====================
+* Fixed a bug in migrations
+
+v0.1.12 (2016-11-19)
+====================
+* Fixed issue with existing canonical keys
+* Removed south migrations completely
+* Dropped support for Django 1.6
