@@ -53,3 +53,7 @@ v0.1.12 (2016-11-19)
 * Fixed issue with existing canonical keys
 * Removed south migrations completely
 * Dropped support for Django 1.6
+
+v0.1.13 (2017-01-05)
+====================
+* GCMMismatchsenderidexception is caught and an error is reported

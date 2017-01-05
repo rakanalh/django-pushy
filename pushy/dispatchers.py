@@ -5,6 +5,7 @@ from threading import Event
 from gcm import GCM
 from gcm.gcm import (
     GCMNotRegisteredException,
+    GCMMismatchSenderIdException,
     GCMException
 )
 
@@ -218,6 +219,8 @@ class GCMDispatcher(Dispatcher):
                 return self.PUSH_RESULT_SENT, 0
         except GCMNotRegisteredException:
             return self.PUSH_RESULT_NOT_REGISTERED, 0
+        except GCMMismatchSenderIdException:
+            return self.PUSH_RESULT_EXCEPTION, 0
         except IOError:
             return self.PUSH_RESULT_EXCEPTION, 0
         except PushException:
