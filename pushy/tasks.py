@@ -1,13 +1,26 @@
 import datetime
+import logging
+
 import celery
 
 from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import timezone
-from ..models import PushNotification
-from ..dispatchers import get_dispatcher, Dispatcher
-from ..models import get_filtered_devices_queryset, Device
+
+from .models import (
+    PushNotification,
+    Device,
+    get_filtered_devices_queryset
+)
+from .exceptions import (
+    PushInvalidTokenException,
+    PushException
+)
+from .dispatchers import get_dispatcher
+
+
+logger = logging.getLogger(__name__)
 
 
 @celery.shared_task(
@@ -87,20 +100,25 @@ def send_single_push_notification(device, payload):
 
     dispatcher = get_dispatcher(device.type)
 
-    result, canonical_id = dispatcher.send(device.key, payload)
+    try:
+        canonical_id = dispatcher.send(device.key, payload)
+        if not canonical_id:
+            return
 
-    if result == Dispatcher.PUSH_RESULT_SENT:
-        if canonical_id > 0:
-            try:
-                with transaction.atomic():
-                    device.key = canonical_id
-                    device.save()
-            except IntegrityError:
-                device.delete()
-    elif result == Dispatcher.PUSH_RESULT_NOT_REGISTERED:
+        with transaction.atomic():
+            device.key = canonical_id
+            device.save()
+
+    except IntegrityError:
         device.delete()
-
-    return True
+    except PushInvalidTokenException:
+        logger.debug('Token for device {} does not exist, skipping'.format(
+            device.id
+        ))
+        device.delete()
+    except PushException:
+        logger.exception("An error occured while sending push notification")
+        return
 
 
 @celery.shared_task(

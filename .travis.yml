@@ -2,11 +2,16 @@ language: python
 
 python:
   - 2.7
+  - 3.4
+  - 3.5
+  - 3.6
 
 env:
   - DJANGO=1.7.11
   - DJANGO=1.8.9
   - DJANGO=1.9.2
+  - DJANGO=1.10.7
+  - DJANGO=1.11.4
 
 install:
   - pip install -q Django==$DJANGO

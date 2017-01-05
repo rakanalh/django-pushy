@@ -1,13 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-import views
+from .views import DeviceViewSet
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^pushy/device/$',
-        views.DeviceViewSet.as_view({
+        DeviceViewSet.as_view({
             'post': 'create',
             'delete': 'destroy'
         }),
         name='pushy-devices'),
-)
+]

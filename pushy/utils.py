@@ -1,6 +1,6 @@
-from models import PushNotification
-from pushy.tasks import send_single_push_notification
-from tasks import create_push_notification_groups
+from .models import PushNotification
+from .tasks import send_single_push_notification
+from .tasks import create_push_notification_groups
 
 
 def send_push_notification(title, payload, device=None,

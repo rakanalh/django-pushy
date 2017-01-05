@@ -2,9 +2,17 @@ class PushException(Exception):
     pass
 
 
-class PushGCMApiKeyException(Exception):
+class PushAuthException(PushException):
     pass
 
 
-class PushAPNsCertificateException(Exception):
+class PushInvalidTokenException(PushException):
+    pass
+
+
+class PushInvalidDataException(PushException):
+    pass
+
+
+class PushServerException(PushException):
     pass
