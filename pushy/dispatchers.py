@@ -79,12 +79,14 @@ class APNSDispatcher(Dispatcher):
         try:
             response = self._client.send(
                 [token],
-                alert=payload.pop('alert', None),
-                sound=payload.pop('sound', None),
-                badge=payload.pop('badge', None),
-                category=payload.pop('category', None),
-                content_available=True,
-                extra=payload or {}
+                message={
+                    'alert': payload.pop('alert', None),
+                    'sound': payload.pop('sound', None),
+                    'badge': payload.pop('badge', None),
+                    'category': payload.pop('category', None),
+                    'content_available': True,
+                    'extra': payload or {}
+                }
             )
 
             if response.errors:
