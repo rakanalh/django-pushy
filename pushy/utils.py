@@ -1,31 +1,38 @@
 from .models import PushNotification
-from .tasks import send_single_push_notification
-from .tasks import create_push_notification_groups
+from .tasks import (
+    send_single_push_notification,
+    create_push_notification_groups
+)
 
 
 def send_push_notification(title, payload, device=None,
-                           filter_user=None, filter_type=None):
+                           filter_user=None, filter_type=None,
+                           store=True):
 
-    notification = PushNotification.objects.create(
+    if not filter_type:
+        filter_type = 0
+    if not filter_user:
+        filter_user = 0
+
+    notification = PushNotification(
         title=title,
         payload=payload,
         active=PushNotification.PUSH_ACTIVE,
-        sent=PushNotification.PUSH_NOT_SENT
+        sent=PushNotification.PUSH_NOT_SENT,
+        filter_user=filter_user,
+        filter_type=filter_type
     )
+    if store:
+        notification.save()
 
     if device:
         # Send a single push notification immediately
         send_single_push_notification.apply_async(kwargs={
             'device': device.id,
-            'payload': notification.payload
+            'notification': notification.to_dict()
         })
-        return
+        return notification
 
-    if filter_type or filter_user:
-        if filter_user:
-            notification.filter_user = filter_user.id
-        if filter_type:
-            notification.filter_type = filter_type
-        notification.save()
+    create_push_notification_groups.delay(notification=notification.to_dict())
 
-    create_push_notification_groups.delay(notification_id=notification.id)
+    return notification

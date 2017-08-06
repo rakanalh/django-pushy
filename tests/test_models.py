@@ -16,3 +16,7 @@ class TasksTestCase(TestCase):
         notification.payload = payload
 
         self.assertEqual(payload, notification.payload)
+
+    def test_to_dict(self):
+        notification = PushNotification()
+        self.assertTrue('_state' not in notification.to_dict())
