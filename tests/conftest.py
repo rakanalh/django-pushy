@@ -26,5 +26,6 @@ def pytest_configure():
 
         PUSHY_GCM_API_KEY='SOME_TEST_KEY',
         PUSHY_GCM_JSON_PAYLOAD=False,
-        PUSHY_APNS_CERTIFICATE_FILE='/var/apns/certificate'
+        PUSHY_APNS_CERTIFICATE_FILE='/var/apns/certificate',
+        PUSHY_APNS_SANDBOX=False
     )

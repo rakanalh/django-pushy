@@ -1,230 +1,171 @@
-import random
-import apns
-from threading import Event
+from django.conf import settings
+from pushjack import (
+    APNSClient,
+    APNSSandboxClient,
+    GCMClient
+)
+from pushjack.exceptions import (
+    GCMAuthError,
+    GCMMissingRegistrationError,
+    GCMInvalidRegistrationError,
+    GCMUnregisteredDeviceError,
+    GCMInvalidPackageNameError,
+    GCMMismatchedSenderError,
+    GCMMessageTooBigError,
+    GCMInvalidDataKeyError,
+    GCMInvalidTimeToLiveError,
+    GCMTimeoutError,
+    GCMInternalServerError,
+    GCMDeviceMessageRateExceededError,
 
-from gcm import GCM
-from gcm.gcm import (
-    GCMNotRegisteredException,
-    GCMMismatchSenderIdException,
-    GCMException
+    APNSAuthError,
+    APNSProcessingError,
+    APNSMissingTokenError,
+    APNSMissingTopicError,
+    APNSMissingPayloadError,
+    APNSInvalidTokenSizeError,
+    APNSInvalidTopicSizeError,
+    APNSInvalidPayloadSizeError,
+    APNSInvalidTokenError,
+    APNSShutdownError,
+    APNSUnknownError
 )
 
-from django.conf import settings
-
-from models import Device
-from exceptions import (
-    PushException,
-    PushGCMApiKeyException,
-    PushAPNsCertificateException
+from .models import Device
+from .exceptions import (
+    PushAuthException,
+    PushInvalidTokenException,
+    PushInvalidDataException,
+    PushServerException
 )
 
 dispatchers_cache = {}
 
 
 class Dispatcher(object):
-    PUSH_RESULT_SENT = 1
-    PUSH_RESULT_NOT_REGISTERED = 2
-    PUSH_RESULT_EXCEPTION = 3
-
-    def send(self, device_key, data):  # noqa
+    def send(self, device_key, data):
         raise NotImplementedError()
 
 
 class APNSDispatcher(Dispatcher):
-
-    connection = None
-
-    error_response_events = None
-
-    STATUS_CODE_NO_ERROR = 0
-
-    STATUS_CODE_PROCESSING_ERROR = 1
-
-    STATUS_CODE_MISSING_DEVICE_TOKEN = 2
-
-    STATUS_CODE_MISSING_TOPIC = 3
-
-    STATUS_CODE_MISSING_PAYLOAD = 4
-
-    STATUS_CODE_INVALID_TOKEN_SIZE = 5
-
-    STATUS_CODE_INVALID_TOPIC_SIZE = 6
-
-    STATUS_CODE_INVALID_PAYLOAD_SIZE = 7
-
-    STATUS_CODE_INVALID_TOKEN = 8
-
-    STATUS_CODE_SHUTDOWN = 10
-
-    STATUS_CODE_UNKNOWN = 255
-
-    class ErrorResponseEvent(object):
-
-        _status = 0
-
-        _event = None
-
-        def __init__(self):
-            self._event = Event()
-
-        def set_status(self, value):
-            self._status = value
-
-            self._event.set()
-
-        def wait_for_response(self, timeout):
-            self._event.wait(timeout)
-
-            return self._status
-
     def __init__(self):
         super(APNSDispatcher, self).__init__()
-
-        self.error_response_events = {}
+        self._client = None
 
     @property
     def cert_file(self):
         return getattr(settings, 'PUSHY_APNS_CERTIFICATE_FILE', None)
 
     @property
-    def key_file(self):
-        return getattr(settings, 'PUSHY_APNS_KEY_FILE', None)
-
-    @property
     def use_sandbox(self):
         return bool(getattr(settings, 'PUSHY_APNS_SANDBOX', False))
 
-    def on_error_response(self, error_response):
-        status = error_response['status']
-        identifier = error_response['identifier']
-
-        event_object = self.error_response_events.pop(identifier, None)
-
-        if event_object:
-            event_object.set_status(status)
-
     def establish_connection(self):
         if self.cert_file is None:
-            raise PushAPNsCertificateException
+            raise PushAuthException('Missing APNS certificate error')
 
-        connection = apns.APNs(
-            use_sandbox=self.use_sandbox,
-            cert_file=self.cert_file,
-            key_file=self.key_file,
-            enhanced=True
+        target_class = APNSClient
+        if self.use_sandbox:
+            target_class = APNSSandboxClient
+
+        self._client = target_class(
+            certificate=self.cert_file,
+            default_error_timeout=10,
+            default_expiration_offset=2592000,
+            default_batch_size=100
         )
 
-        connection.gateway_server.register_response_listener(
-            self.on_error_response
-        )
+    def _send(self, token, payload):
+        try:
+            response = self._client.send(
+                [token],
+                message={
+                    'alert': payload.pop('alert', None),
+                    'sound': payload.pop('sound', None),
+                    'badge': payload.pop('badge', None),
+                    'category': payload.pop('category', None),
+                    'content_available': True,
+                    'extra': payload or {}
+                }
+            )
 
-        self.connection = connection
+            if response.errors:
+                raise response.errors.pop()
+            return None
 
-    @staticmethod
-    def create_identifier():
-        return random.getrandbits(32)
+        except APNSAuthError:
+            raise PushAuthException()
 
-    def _send_notification(self, token, payload):
-        identifier = self.create_identifier()
+        except (APNSMissingTokenError,
+                APNSInvalidTokenError):
+            raise PushInvalidTokenException()
 
-        event_object = self.ErrorResponseEvent()
+        except (APNSProcessingError,
+                APNSMissingTopicError,
+                APNSMissingPayloadError,
+                APNSInvalidTokenSizeError,
+                APNSInvalidTopicSizeError,
+                APNSInvalidPayloadSizeError):
+            raise PushInvalidDataException()
 
-        self.error_response_events[identifier] = event_object
+        except (APNSShutdownError,
+                APNSUnknownError):
+            raise PushServerException()
 
-        self.connection.gateway_server.send_notification(
-            token, payload, identifier=identifier
-        )
-
-        return event_object
-
-    def send(self, device_key, data):
-        if not self.connection:
+    def send(self, device_key, payload):
+        if not self._client:
             self.establish_connection()
 
-        payload = apns.Payload(
-            alert=data.pop('alert', None),
-            sound=data.pop('sound', None),
-            badge=data.pop('badge', None),
-            category=data.pop('category', None),
-            content_available=bool(data.pop('content-available', False)),
-            custom=data or {}
-        )
-
-        event = self._send_notification(device_key, payload)
-
-        status = event.wait_for_response(1.5)
-
-        if status in (self.STATUS_CODE_INVALID_TOKEN,
-                      self.STATUS_CODE_INVALID_TOKEN_SIZE):
-            push_result = self.PUSH_RESULT_NOT_REGISTERED
-        elif status == self.STATUS_CODE_NO_ERROR:
-            push_result = self.PUSH_RESULT_SENT
-        else:
-            push_result = self.PUSH_RESULT_EXCEPTION
-
-        return push_result, 0
+        return self._send(device_key, payload)
 
 
 class GCMDispatcher(Dispatcher):
+    def __init__(self, api_key=None):
+        if not api_key:
+            api_key = getattr(settings, 'PUSHY_GCM_API_KEY', None)
+        self._api_key = api_key
 
-    def _send_plaintext(self, gcm_client, device_key, data):
-        return gcm_client.plaintext_request(device_key, data=data)
+    def _send(self, device_key, payload):
+        if not self._api_key:
+            raise PushAuthException()
 
-    def _send_json(self, gcm_client, device_key, data):
-        response = gcm_client.json_request(registration_ids=[device_key],
-                                           data=data)
-
-        device_error = None
-
-        if 'errors' in response:
-            for error, reg_ids in response['errors'].items():
-                # Check for errors and act accordingly
-
-                if device_key in reg_ids:
-                    device_error = error
-                    break
-
-        if device_error:
-            gcm_client.raise_error(device_error)
-
-            raise GCMException(device_error)
-
-        if 'canonical' in response:
-            canonical_id = response['canonical'].get(device_key, 0)
-        else:
-            canonical_id = 0
-
-        return canonical_id
-
-    def send(self, device_key, data):
-        gcm_api_key = getattr(settings, 'PUSHY_GCM_API_KEY', None)
-
-        gcm_json_payload = getattr(settings, 'PUSHY_GCM_JSON_PAYLOAD', True)
-
-        if not gcm_api_key:
-            raise PushGCMApiKeyException()
-
-        gcm = GCM(gcm_api_key)
-
-        # Plaintext request
+        gcm_client = GCMClient(self._api_key)
         try:
-            if gcm_json_payload:
-                canonical_id = self._send_json(gcm, device_key, data)
-            else:
-                canonical_id = self._send_plaintext(gcm, device_key, data)
+            response = gcm_client.send(
+                [device_key],
+                payload
+            )
 
-            if canonical_id:
-                return self.PUSH_RESULT_SENT, canonical_id
-            else:
-                return self.PUSH_RESULT_SENT, 0
-        except GCMNotRegisteredException:
-            return self.PUSH_RESULT_NOT_REGISTERED, 0
-        except GCMMismatchSenderIdException:
-            return self.PUSH_RESULT_EXCEPTION, 0
-        except IOError:
-            return self.PUSH_RESULT_EXCEPTION, 0
-        except PushException:
-            return self.PUSH_RESULT_EXCEPTION, 0
+            if response.errors:
+                raise response.errors.pop()
+
+            canonical_id = None
+            if response.canonical_ids:
+                canonical_id = response.canonical_ids[0].new_id
+            return canonical_id
+
+        except GCMAuthError:
+            raise PushAuthException()
+
+        except (GCMMissingRegistrationError,
+                GCMInvalidRegistrationError,
+                GCMUnregisteredDeviceError):
+            raise PushInvalidTokenException()
+
+        except (GCMInvalidPackageNameError,
+                GCMMismatchedSenderError,
+                GCMMessageTooBigError,
+                GCMInvalidDataKeyError,
+                GCMInvalidTimeToLiveError):
+            raise PushInvalidDataException()
+
+        except (GCMTimeoutError,
+                GCMInternalServerError,
+                GCMDeviceMessageRateExceededError):
+            raise PushServerException()
+
+    def send(self, device_key, payload):
+        return self._send(device_key, payload)
 
 
 def get_dispatcher(device_type):
@@ -233,7 +174,7 @@ def get_dispatcher(device_type):
 
     if device_type == Device.DEVICE_TYPE_ANDROID:
         dispatchers_cache[device_type] = GCMDispatcher()
-    elif device_type == Device.DEVICE_TYPE_IOS:
+    else:
         dispatchers_cache[device_type] = APNSDispatcher()
 
     return dispatchers_cache[device_type]

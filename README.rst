@@ -10,7 +10,6 @@ Your push notifications handled at scale.
    :target: https://landscape.io/github/rakanalh/django-pushy/master
    :alt: Code Health
 
-
 What does it do?
 ----------------
 Python / Django app that provides push notifications functionality with celery. The main purpose of this app is to help you send push notifications to your users at scale. If you have lots of registered device keys, django-pushy will split your keys into smaller groups which run in parallel making the process of sending notifications faster.
@@ -40,7 +39,6 @@ Configurations::
 
     # iOS
     PUSHY_APNS_SANDBOX = True or False
-    PUSHY_APNS_KEY_FILE = 'PATH_TO_KEY_FILE'
     PUSHY_APNS_CERTIFICATE_FILE = 'PATH_TO_CERTIFICATE_FILE'
 
     PUSHY_QUEUE_DEFAULT_NAME = 'default'
@@ -81,6 +79,10 @@ Or you can use the filter_user or filter_type to make pushy send to a specified 
 
     send_push_notification('YOUR TITLE', {YOUR_PAYLOAD}, filter_user=user)
     send_push_notification('YOUR TITLE', {YOUR_PAYLOAD}, filter_type=Device.DEVICE_TYPE_IOS)
+
+If you don't want to store the push notification into the database, you could pass in a keyword argument::
+
+  send_push_notification('YOUR_TITLE', {YOUR_PAYLOAD}, device=device, store=False)
 
 If you would like to add a push notification without triggering any action right away, you should be setting the property "payload
 instead of adding your dict to body as follows::

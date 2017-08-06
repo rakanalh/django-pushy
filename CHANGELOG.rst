@@ -57,3 +57,8 @@ v0.1.12 (2016-11-19)
 v0.1.13 (2017-01-05)
 ====================
 * GCMMismatchsenderidexception is caught and an error is reported
+
+v1.0.0 (2017-08-06)
+====================
+* Migrated from GCM and APNS libraries into pushjack
+* Python 3 support

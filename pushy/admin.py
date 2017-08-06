@@ -1,7 +1,8 @@
 import json
 from django.contrib import admin
 from django import forms
-from models import PushNotification, Device
+
+from .models import PushNotification, Device
 
 
 class PushNotificationForm(forms.ModelForm):

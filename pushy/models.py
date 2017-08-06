@@ -1,3 +1,4 @@
+import copy
 import json
 from django.conf import settings
 from django.db import models
@@ -47,6 +48,15 @@ class PushNotification(models.Model):
     def payload(self, value):
         self.body = json.dumps(value)
 
+    def to_dict(self):
+        # return notification as a dictionary
+        # not including duplicate or model related fields
+        data = copy.deepcopy(self.__dict__)
+        data['payload'] = self.payload
+        del data['body']
+        del data['_state']
+        return data
+
     def __unicode__(self):
         return self.title
 
@@ -75,9 +85,9 @@ class Device(models.Model):
 def get_filtered_devices_queryset(notification):
     devices = Device.objects.all()
 
-    if notification.filter_type:
-        devices = devices.filter(type=notification.filter_type)
-    if notification.filter_user:
-        devices = devices.filter(user_id=notification.filter_user)
+    if 'filter_type' in notification and notification['filter_type']:
+        devices = devices.filter(type=notification['filter_type'])
+    if 'filter_user' in notification and notification['filter_user']:
+        devices = devices.filter(user_id=notification['filter_user'])
 
     return devices
