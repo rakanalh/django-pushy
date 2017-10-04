@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Django-Pushy',
-    version='1.0.0',
+    version='1.0.1',
     author='Rakan Alhneiti',
     author_email='rakan.alhneiti@gmail.com',
 

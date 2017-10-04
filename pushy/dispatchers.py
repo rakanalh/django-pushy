@@ -1,3 +1,4 @@
+import copy
 from django.conf import settings
 from pushjack import (
     APNSClient,
@@ -75,7 +76,12 @@ class APNSDispatcher(Dispatcher):
             default_batch_size=100
         )
 
-    def _send(self, token, payload):
+    def _send(self, token, notification_payload):
+        # pop causes a bug in altering the original payload
+        # which causes title and message to be empty
+        # for notifications following the currrent one.
+        payload = copy.deepcopy(notification_payload)
+
         try:
             response = self._client.send(
                 [token],
