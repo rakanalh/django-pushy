@@ -117,6 +117,9 @@ class APNSDispatcher(Dispatcher):
                 APNSUnknownError):
             raise PushServerException()
 
+        except:
+            raise PushServerException()
+
     def send(self, device_key, payload):
         if not self._client:
             self.establish_connection()
@@ -167,6 +170,9 @@ class GCMDispatcher(Dispatcher):
         except (GCMTimeoutError,
                 GCMInternalServerError,
                 GCMDeviceMessageRateExceededError):
+            raise PushServerException()
+
+        except:
             raise PushServerException()
 
     def send(self, device_key, payload):
