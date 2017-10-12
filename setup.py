@@ -29,6 +29,6 @@ setup(
         'pushjack==1.3.0'
     ],
     extras_require={
-        'rest_api': ['djangorestframework>=3.0,<3.3']
+        'rest_api': ['djangorestframework<3.7.0']
     }
 )

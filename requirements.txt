@@ -1,4 +1,4 @@
 Django
 django-celery<4.0
 pushjack==1.3.0
-djangorestframework>3.0
+djangorestframework<3.7.0
